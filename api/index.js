@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const accessControl = require('./middlewares/accessControl');
 const errorHandler = require('./controllers/errorHandler');
 
 const initApp = (app) => {
