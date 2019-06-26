@@ -1,2 +1,5 @@
 .env
 node_modules
+
+# development key-value store
+db/keyval/store.json

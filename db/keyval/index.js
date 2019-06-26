@@ -5,14 +5,25 @@
  */
 
 const fs = require('fs');
-const logger = require('../logger');
 
 let initialized = false;
 let store = null;
 let filePath = null;
 
+let logger = null;
+
 const ERROR_MSG_ALREADY_INITIALIZED = 'Store is already initialized! You cannot call init() again';
 const ERROR_MSG_NOT_INITIALIZED = 'Store not initialized! Make sure to call init() first';
+
+const setLogger = (loggerInstance) => {
+  logger = loggerInstance;
+};
+
+const log = (level, message) => {
+  if (logger) {
+    logger.log(level, message);
+  }
+};
 
 const load = () => {
   return new Promise((resolve, reject) => {
@@ -61,7 +72,7 @@ const init = (path) => {
         resolve();
       })
       .catch(err => {
-        logger.log('info', 'failed to init store from path');
+        log('info', 'failed to init store from path - using empty store instead');
 
         // init empty database object
         store = {};
@@ -79,8 +90,8 @@ const set = (key, value) => {
   store[key] = value;
 
   persist()
-    .then(() => logger.log('info', 'persisted store state to disk'))
-    .catch((err) => logger.log('error', 'failed to persist store state to disk: ' + err.message));
+    .then(() => log('info', 'persisted store state to disk'))
+    .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
 };
 
 const get = key => {
@@ -97,13 +108,18 @@ const unset = key => {
   }
 
   delete store[key];
+
+  persist()
+    .then(() => log('info', 'persisted store state to disk'))
+    .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
 };
 
 const publicApi = {
   init,
   set,
   get,
-  unset
+  unset,
+  setLogger,
 };
 
 module.exports = publicApi;
