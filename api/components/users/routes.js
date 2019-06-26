@@ -1,7 +1,24 @@
 const router = require('express').Router();
+const userDao = require('./dao');
 
 router.post('/create', (req, res, next) => {
-  res.status(200).send("HI");
+  const user = {
+    id: 'abc',
+    getMetaData: () => {
+      return {
+        username: 'test',
+        salt: 'salty',
+        password: '4frslö453',
+      };
+    },
+    getHash: () => {
+      return 'xyzabcdef';
+    }
+  }
+
+  userDao.createUser(user);
+
+  return res.status(201).send("Alright!");
 });
 
 module.exports = router;
