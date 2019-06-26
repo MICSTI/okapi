@@ -89,9 +89,11 @@ const set = (key, value) => {
 
   store[key] = value;
 
-  persist()
-    .then(() => log('info', 'persisted store state to disk'))
-    .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
+  if (filePath) {
+    persist()
+      .then(() => log('info', 'persisted store state to disk'))
+      .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
+  }
 };
 
 const get = key => {
@@ -109,9 +111,11 @@ const unset = key => {
 
   delete store[key];
 
-  persist()
-    .then(() => log('info', 'persisted store state to disk'))
-    .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
+  if (filePath) {
+    persist()
+      .then(() => log('info', 'persisted store state to disk'))
+      .catch((err) => log('error', 'failed to persist store state to disk: ' + err.message));
+  }
 };
 
 const publicApi = {
