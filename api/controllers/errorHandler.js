@@ -5,7 +5,7 @@ const createError = (status, message) => {
   return error;
 };
 
-const handle = (err, req, res) => {
+const handle = (err, req, res, next) => {
   const { message } = err;
   res.status(err.status || 500).json(message);
 };
