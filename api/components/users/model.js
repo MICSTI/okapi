@@ -6,6 +6,11 @@ const constants = {
   DB_KEY_COMPOSITE_DATA: 'user:{{USER_ID}}:data',
   DB_KEY_COMPOSITE_META: 'user:{{USER_ID}}:meta',
   DB_KEY_COMPOSITE_HASH: 'user:{{USER_ID}}:hash',
+
+  JSON_KEY_ID: 'id',
+  JSON_KEY_FIRST_NAME: 'firstName',
+  JSON_KEY_LAST_NAME: 'lastName',
+  JSON_KEY_EMAIL: 'email',
 };
 
 const getCompositeKey = (type, userId) => {

@@ -7,6 +7,9 @@ router.post('/create', (req, res, next) => {
     getMetaData: () => {
       return {
         username: 'test',
+        firstName: 'Michael',
+        lastName: 'Stifter',
+        email: 'michael.stifter@email.com',
         salt: 'salty',
         password: '4frslö453',
       };
