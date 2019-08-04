@@ -1,15 +1,19 @@
 const userModel = require('./model');
 const store = require('../../../db');
+const cryptoUtil = require('../../../util/crypto');
 
 const createUser = (userObj) => {
   // filter the incoming JSON object
   const user = filterJsonInputCreateUser(userObj);
-  
-  const userId = user.id;
 
-  store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), userModel.getEmptyDataObject());
-  store.set(userModel.getCompositeKey(userModel.constants.META, userId), user.getMetaData());
-  store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), user.getHash());
+  // assign a unique user ID
+  const userId = cryptoUtil.createRandomString();
+
+  store.set('hello', userId);
+
+  //store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), userModel.getEmptyDataObject());
+  //store.set(userModel.getCompositeKey(userModel.constants.META, userId), user.getMetaData());
+  //store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), user.getHash());
 };
 
 const filterJsonInputCreateUser = (userJson) => {
