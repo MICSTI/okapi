@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const errorHandler = require('./controllers/errorHandler');
 const userRoutes = require('./components/users/routes');
+const updateRoutes = require('./components/update/routes');
 
 const initApp = (app) => {
   // set up body parser
@@ -11,6 +12,7 @@ const initApp = (app) => {
 
   // API routes
   app.use('/api/users', userRoutes);
+  app.use('/api/update', updateRoutes);
 
   // static routes
   app.use('/public', express.static('public'));
