@@ -1,10 +1,14 @@
-const crypto = require('crypto');
+const charPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const charPoolLength = charPool.length;
 
 const createRandomString = (len = 24) => {
-  return crypto
-    .randomBytes(Math.ceil(len / 2))
-    .toString('hex') // convert to hexadecimal format
-    .slice(0, len) // return required number of characters
+  const charArray = [];
+
+  for (let i = 0; i < len; i++) {
+    charArray.push(charPool.charAt(Math.floor(Math.random() * charPoolLength)));
+  }
+
+  return charArray.join('');
 }
 
 module.exports = {
