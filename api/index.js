@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const errorHandler = require('./controllers/errorHandler');
+const authRoutes = require('./components/auth/routes');
 const userRoutes = require('./components/users/routes');
 const contentRoutes = require('./components/content/routes');
 
@@ -11,6 +12,7 @@ const initApp = (app) => {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   // API routes
+  app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/content', contentRoutes);
 
