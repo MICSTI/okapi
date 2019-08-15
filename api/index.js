@@ -4,12 +4,16 @@ const errorHandler = require('./controllers/errorHandler');
 const authRoutes = require('./components/auth/routes');
 const userRoutes = require('./components/users/routes');
 const contentRoutes = require('./components/content/routes');
+const accessControl = require('./middlewares/accessControl');
 
 const initApp = (app) => {
   // set up body parser
   app.use(bodyParser.json());
   app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  // parse authenthication information
+  app.use(accessControl.parseAuthToken);
 
   // API routes
   app.use('/api/auth', authRoutes);
