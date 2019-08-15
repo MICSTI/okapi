@@ -1,6 +1,7 @@
 const userModel = require('./model');
 const store = require('../../../db');
 const cryptoUtil = require('../../../util/crypto');
+const logger = require('../../../logger');
 
 const createUser = (userObj) => {
   // filter the incoming JSON object
@@ -14,6 +15,35 @@ const createUser = (userObj) => {
   //store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), userModel.getEmptyDataObject());
   //store.set(userModel.getCompositeKey(userModel.constants.META, userId), user.getMetaData());
   //store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), user.getHash());
+};
+
+const validateCredentials = (username, password) => {
+  let user;
+
+  // get all 'meta' user keys from the store
+  // TODO change this to a more performant approach (using wildcards in Redis?)
+  const storeKeys = store.keys().filter(key => key.endsWith(userModel.constants.META));
+
+  // TODO change to regular for loop
+  storeKeys.forEach(key => {
+    // no need to continue if we already found the user
+    if (user) {
+      return;
+    }
+
+    const userObj = store.get(key);
+
+    if (userObj[userModel.constants.JSON_KEY_EMAIL] !== username) {
+      return;
+    }
+
+    // TODO perform password check with crypto util
+    user = {
+      id: userObj[userModel.constants.JSON_KEY_ID],
+    };
+  });
+
+  return user;
 };
 
 const filterJsonInputCreateUser = (userJson) => {
@@ -41,4 +71,5 @@ const getUserContentHash = (userId) => {
 module.exports = {
   createUser,
   getUserContentHash,
+  validateCredentials,
 }

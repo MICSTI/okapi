@@ -104,6 +104,14 @@ const get = key => {
   return store[key];
 };
 
+const keys = () => {
+  if (!initialized) {
+    throw new Error(ERROR_MSG_NOT_INITIALIZED);
+  }
+
+  return Object.keys(store);
+};
+
 const unset = key => {
   if (!initialized) {
     throw new Error(ERROR_MSG_NOT_INITIALIZED);
@@ -122,6 +130,7 @@ const publicApi = {
   init,
   set,
   get,
+  keys,
   unset,
   setLogger,
 };
