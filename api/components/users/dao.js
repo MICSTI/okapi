@@ -34,6 +34,11 @@ const filterJsonInputCreateUser = (userJson) => {
   return filteredObj;
 };
 
+const getUserContentHash = (userId) => {
+  return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
+};
+
 module.exports = {
   createUser,
+  getUserContentHash,
 }

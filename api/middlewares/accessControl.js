@@ -3,7 +3,7 @@ const errorHandler = require('../controllers/errorHandler');
 /**
  * Checks if a user object exists on the request object.
  */
-const protect = () => (req, res, next) => {
+const protect = (req, res, next) => {
   if (!req.user) {
     // no permission
     return next(errorHandler.createError(403, 'No permission to access this resource'));
@@ -20,7 +20,7 @@ const permit = (...allowed) => (req, res, next) => {
     return next(errorHandler.createError(403, 'No permission to access this resource'));
   }
 
-  return next();
+  next();
 };
 
 module.exports.permit = permit;
