@@ -28,6 +28,7 @@ const getCompositeKey = (type, userId) => {
 
 const getEmptyDataObject = () => {
   return {
+    self: {},
     settings: {},
     contacts: [],
     relationships: [],

@@ -10,11 +10,13 @@ const createUser = (userObj) => {
   // assign a unique user ID
   const userId = cryptoUtil.createRandomString();
 
-  store.set('hello', userId);
+  const dataObj = userModel.getEmptyDataObject();
 
-  //store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), userModel.getEmptyDataObject());
-  //store.set(userModel.getCompositeKey(userModel.constants.META, userId), user.getMetaData());
-  //store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), user.getHash());
+  store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
+  store.set(userModel.getCompositeKey(userModel.constants.META, userId), "meta object");
+  store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), "calculated hash");
+
+  return dataObj;
 };
 
 const validateCredentials = (username, password) => {
@@ -62,6 +64,11 @@ const filterJsonInputCreateUser = (userJson) => {
   }
 
   return filteredObj;
+};
+
+const validateCreateUserObj = (userObj) => {
+  // TODO implement check if all necessary properties are there
+  return true;
 };
 
 const getUserContentHash = (userId) => {
