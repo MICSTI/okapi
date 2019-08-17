@@ -10,7 +10,7 @@ const createUser = (userObj) => {
   // assign a unique user ID
   const userId = cryptoUtil.createRandomString();
 
-  const dataObj = userModel.getEmptyDataObject();
+  const dataObj = userModel.initNewDataObject(userId);
 
   store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
   store.set(userModel.getCompositeKey(userModel.constants.META, userId), "meta object");
@@ -35,13 +35,13 @@ const validateCredentials = (username, password) => {
 
     const userObj = store.get(key);
 
-    if (userObj[userModel.constants.JSON_KEY_EMAIL] !== username) {
+    if (userObj[userModel.constants.KEY_EMAIL] !== username) {
       return;
     }
 
     // TODO perform password check with crypto util
     user = {
-      id: userObj[userModel.constants.JSON_KEY_ID],
+      id: userObj[userModel.constants.KEY_ID],
     };
   });
 
@@ -50,9 +50,9 @@ const validateCredentials = (username, password) => {
 
 const filterJsonInputCreateUser = (userJson) => {
   const allowedProperties = [
-    userModel.constants.JSON_KEY_FIRST_NAME,
-    userModel.constants.JSON_KEY_LAST_NAME,
-    userModel.constants.JSON_KEY_EMAIL,
+    userModel.constants.KEY_FIRST_NAME,
+    userModel.constants.KEY_LAST_NAME,
+    userModel.constants.KEY_EMAIL,
   ];
 
   const filteredObj = {};

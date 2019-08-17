@@ -7,10 +7,14 @@ const constants = {
   DB_KEY_COMPOSITE_META: 'user:{{USER_ID}}:meta',
   DB_KEY_COMPOSITE_HASH: 'user:{{USER_ID}}:hash',
 
-  JSON_KEY_ID: 'id',
-  JSON_KEY_FIRST_NAME: 'firstName',
-  JSON_KEY_LAST_NAME: 'lastName',
-  JSON_KEY_EMAIL: 'email',
+  KEY_CONTACTS: 'contacts',
+  KEY_ID: 'id',
+  KEY_EMAIL: 'email',
+  KEY_FIRST_NAME: 'firstName',
+  KEY_LAST_NAME: 'lastName',
+  KEY_RELATIONSHIPS: 'relationships',
+  KEY_SELF: 'self',
+  KEY_SETTINGS: 'settings',
 };
 
 const getCompositeKey = (type, userId) => {
@@ -26,21 +30,19 @@ const getCompositeKey = (type, userId) => {
   }
 };
 
-const getEmptyDataObject = () => {
+const initNewDataObject = (userId) => {
   return {
-    self: {},
-    settings: {},
-    contacts: [],
-    relationships: [],
+    [constants.KEY_SELF]: {
+      [constants.KEY_ID]: userId,
+    },
+    [constants.KEY_SETTINGS]: {},
+    [constants.KEY_CONTACTS]: [],
+    [constants.KEY_RELATIONSHIPS]: [],
   };
 }
 
-const createFromJson = (userJson) => {
-  // TODO implement
-};
-
 module.exports = {
   constants,
-  getEmptyDataObject,
+  initNewDataObject,
   getCompositeKey,
 };
