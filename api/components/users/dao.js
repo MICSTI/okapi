@@ -1,7 +1,6 @@
 const userModel = require('./model');
 const store = require('../../../db');
 const cryptoUtil = require('../../../util/crypto');
-const logger = require('../../../logger');
 
 const createUser = (userObj) => {
   // filter the incoming JSON object
@@ -9,11 +8,13 @@ const createUser = (userObj) => {
 
   // assign a unique user ID
   const userId = cryptoUtil.createRandomString();
+  user[userModel.constants.KEY_ID] = userId;
 
-  const dataObj = userModel.initNewDataObject(userId);
+  const dataObj = userModel.initDataObject(user);
+  const metaObj = userModel.initMetaObject(user);
 
   store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
-  store.set(userModel.getCompositeKey(userModel.constants.META, userId), "meta object");
+  store.set(userModel.getCompositeKey(userModel.constants.META, userId), metaObj);
   store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), "calculated hash");
 
   return dataObj;

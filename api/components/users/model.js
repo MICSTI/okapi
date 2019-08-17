@@ -30,19 +30,31 @@ const getCompositeKey = (type, userId) => {
   }
 };
 
-const initNewDataObject = (userId) => {
+const initDataObject = (user) => {
   return {
     [constants.KEY_SELF]: {
-      [constants.KEY_ID]: userId,
+      [constants.KEY_ID]: user[constants.KEY_ID],
     },
     [constants.KEY_SETTINGS]: {},
     [constants.KEY_CONTACTS]: [],
     [constants.KEY_RELATIONSHIPS]: [],
   };
-}
+};
+
+const initMetaObject = (user) => {
+  const metaObj = {};
+
+  metaObj[constants.KEY_ID] = user[constants.KEY_ID];
+  metaObj[constants.KEY_EMAIL] = user[constants.KEY_EMAIL];
+  metaObj[constants.KEY_FIRST_NAME] = user[constants.KEY_FIRST_NAME];
+  metaObj[constants.KEY_LAST_NAME] = user[constants.KEY_LAST_NAME];
+
+  return metaObj;
+};
 
 module.exports = {
   constants,
-  initNewDataObject,
+  initDataObject,
+  initMetaObject,
   getCompositeKey,
 };
