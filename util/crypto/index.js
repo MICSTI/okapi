@@ -1,3 +1,5 @@
+const CryptoJS = require('crypto-js');
+
 const charPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const charPoolLength = charPool.length;
 
@@ -9,8 +11,13 @@ const createRandomString = (len = 24) => {
   }
 
   return charArray.join('');
-}
+};
+
+const getObjectHashSha256 = obj => {
+  return CryptoJS.SHA256(JSON.stringify(obj)).toString(CryptoJS.enc.Base64);
+};
 
 module.exports = {
   createRandomString,
+  getObjectHashSha256,
 };

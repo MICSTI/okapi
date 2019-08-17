@@ -6,16 +6,24 @@ const createUser = (userObj) => {
   // filter the incoming JSON object
   const user = filterJsonInputCreateUser(userObj);
 
+  // validate the incoming JSON object
+  const missingProps = validateCreateUserObj(userObj);
+
+  if (missingProps.length !== 0) {
+    throw new Error("Missing mandatory properties: " + missingProps.join(', '));
+  }
+
   // assign a unique user ID
   const userId = cryptoUtil.createRandomString();
   user[userModel.constants.KEY_ID] = userId;
 
   const dataObj = userModel.initDataObject(user);
   const metaObj = userModel.initMetaObject(user);
+  const dataHash = calculateDataHash(dataObj);
 
-  store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
-  store.set(userModel.getCompositeKey(userModel.constants.META, userId), metaObj);
-  store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), "calculated hash");
+  setUserData(userId, dataObj);
+  setUserMeta(userId, metaObj);
+  setUserContentHash(userId, dataHash);
 
   return dataObj;
 };
@@ -69,10 +77,34 @@ const filterJsonInputCreateUser = (userJson) => {
 
 const validateCreateUserObj = (userObj) => {
   // TODO implement check if all necessary properties are there
-  return true;
+  return [];
 };
 
-const getUserContentHash = (userId) => {
+const calculateDataHash = dataObj => {
+  return cryptoUtil.getObjectHashSha256(dataObj);
+};
+
+const setUserMeta = (userId, metaObj) => {
+  store.set(userModel.getCompositeKey(userModel.constants.META, userId), metaObj);
+};
+
+const getUserMeta = userId => {
+  store.get(userModel.getCompositeKey(userModel.constants.META, userId));
+};
+
+const setUserData = (userId, dataObj) => {
+  store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
+};
+
+const getUserData = userId => {
+  store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
+};
+
+const setUserContentHash = (userId, hash) => {
+  store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), hash);
+};
+
+const getUserContentHash = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
 };
 
@@ -80,4 +112,4 @@ module.exports = {
   createUser,
   getUserContentHash,
   validateCredentials,
-}
+};
