@@ -16,7 +16,21 @@ router.post('/ping', accessControl.protect, (req, res, next) => {
 });
 
 router.post('/update', accessControl.protect, (req, res, next) => {
-  return res.status(200).send("Alright!");
+  const patch = req.body.patch;
+
+  if (!patch) {
+    return next(errorHandler.createError(400, "Missing mandatory body parameter 'patch'"));
+  }
+
+  try {
+    const newHash = userDao.updateUserData(req.user.id, patch);
+
+    return res.status(200).json({
+      newHash,
+    });
+  } catch (err) {
+    return next(errorHandler.createError(400, err.message));
+  }
 }); 
 
 module.exports = router;

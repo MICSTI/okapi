@@ -1,3 +1,5 @@
+const jsonPatch = require('fast-json-patch');
+
 const userModel = require('./model');
 const store = require('../../../db');
 const cryptoUtil = require('../../../util/crypto');
@@ -89,7 +91,7 @@ const setUserMeta = (userId, metaObj) => {
 };
 
 const getUserMeta = userId => {
-  store.get(userModel.getCompositeKey(userModel.constants.META, userId));
+  return store.get(userModel.getCompositeKey(userModel.constants.META, userId));
 };
 
 const setUserData = (userId, dataObj) => {
@@ -97,7 +99,7 @@ const setUserData = (userId, dataObj) => {
 };
 
 const getUserData = userId => {
-  store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
+  return store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
 };
 
 const setUserContentHash = (userId, hash) => {
@@ -108,8 +110,42 @@ const getUserContentHash = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
 };
 
+const updateUserData = (userId, patch) => {
+  // validate the patch object => make sure that no reserved properties are changed
+  const validatedPatch = validatePatchObj(patch);
+
+  // prepare the patch object => replace object IDs with actual indizes
+  const preparedPatch = preparePatchObj(validatedPatch);
+
+  const dataObj = getUserData(userId);
+  const updatedDataObj = jsonPatch.applyPatch(dataObj, preparedPatch).newDocument;
+
+  setUserData(userId, updatedDataObj);
+
+  const hash = calculateDataHash(updatedDataObj);
+  setUserContentHash(userId, hash);
+  
+  return hash;
+};
+
+const validatePatchObj = patch => {
+  // make sure that none of the reserved top-level properties are changed/overwritten/deleted/moved
+
+  // TODO implement
+  return patch;
+}
+
+const preparePatchObj = (userId, patch) => {
+  // a "path" property containing something like this will be substituted to the actual array index
+  // { ..., path: "/contacts/:OBJECT_ID/firstName", ... } -> { ..., path: "/contacts/7/firstName", ... }
+
+  // TODO implement
+  return patch;
+};
+
 module.exports = {
   createUser,
   getUserContentHash,
+  updateUserData,
   validateCredentials,
 };
