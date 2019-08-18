@@ -115,7 +115,7 @@ const updateUserData = (userId, patch) => {
   const validatedPatch = validatePatchObj(patch);
 
   // prepare the patch object => replace object IDs with actual indizes
-  const preparedPatch = preparePatchObj(validatedPatch);
+  const preparedPatch = preparePatchObj(userId, validatedPatch);
 
   const dataObj = getUserData(userId);
   const updatedDataObj = jsonPatch.applyPatch(dataObj, preparedPatch).newDocument;
