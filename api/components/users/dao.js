@@ -41,19 +41,11 @@ const createUser = (userObj) => {
 };
 
 const validateCredentials = (username, password) => {
-  let user;
-
   // get all 'meta' user keys from the store
   // TODO change this to a more performant approach (using wildcards in Redis?)
   const storeKeys = store.keys().filter(key => key.endsWith(userModel.constants.META));
 
-  // TODO change to regular for loop
-  storeKeys.forEach(key => {
-    // no need to continue if we already found the user
-    if (user) {
-      return;
-    }
-
+  for (let key of storeKeys) {
     const userObj = store.get(key);
 
     if (userObj[userModel.constants.KEY_EMAIL] !== username) {
@@ -61,12 +53,12 @@ const validateCredentials = (username, password) => {
     }
 
     // TODO perform password check with crypto util
-    user = {
+    return {
       id: userObj[userModel.constants.KEY_ID],
     };
-  });
-
-  return user;
+  }
+  
+  return null;
 };
 
 const filterJsonInputCreateUser = (userJson) => {
