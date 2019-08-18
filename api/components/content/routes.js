@@ -3,6 +3,18 @@ const accessControl = require('../../middlewares/accessControl');
 const userDao = require('../users/dao');
 const errorHandler = require('../../controllers/errorHandler');
 
+router.get('/data', accessControl.protect, (req, res, next) => {
+  const userId = req.user.id;
+
+  const data = userDao.getUserDataBase64(userId);
+  const hash = userDao.getUserContentHash(userId);
+
+  return res.status(200).json({
+    data,
+    hash
+  });
+});
+
 router.post('/ping', accessControl.protect, (req, res, next) => {
   const hash = userDao.getUserContentHash(req.user.id);
 
@@ -31,6 +43,6 @@ router.post('/update', accessControl.protect, (req, res, next) => {
   } catch (err) {
     return next(errorHandler.createError(400, err.message));
   }
-}); 
+});
 
 module.exports = router;

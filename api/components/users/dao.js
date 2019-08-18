@@ -112,6 +112,10 @@ const getUserData = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
 };
 
+const getUserDataBase64 = userId => {
+  return cryptoUtil.encodeBase64(getUserData(userId));
+};
+
 const setUserContentHash = (userId, hash) => {
   store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), hash);
 };
@@ -240,6 +244,7 @@ const preparePatchObj = (userId, patch) => {
 module.exports = {
   createUser,
   getUserContentHash,
+  getUserDataBase64,
   updateUserData,
   validateCredentials,
 };
