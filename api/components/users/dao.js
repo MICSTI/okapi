@@ -4,6 +4,16 @@ const userModel = require('./model');
 const store = require('../../../db');
 const cryptoUtil = require('../../../util/crypto');
 
+const PATCH_KEY_OP = 'op';
+const PATCH_KEY_PATH = 'path';
+const PATCH_KEY_VALUE = 'value';
+
+const validPathStarts = [
+  '/' + userModel.constants.KEY_CONTACTS + '/',
+  '/' + userModel.constants.KEY_SETTINGS + '/',
+  '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
+];
+
 const createUser = (userObj) => {
   // filter the incoming JSON object
   const user = filterJsonInputCreateUser(userObj);
@@ -111,11 +121,13 @@ const getUserContentHash = userId => {
 };
 
 const updateUserData = (userId, patch) => {
+  const patchArr = ensurePatchIsArray(patch);
+
   // validate the patch object => make sure that no reserved properties are changed
-  const validatedPatch = validatePatchObj(patch);
+  validatePatchObj(patchArr);
 
   // prepare the patch object => replace object IDs with actual indizes
-  const preparedPatch = preparePatchObj(userId, validatedPatch);
+  const preparedPatch = preparePatchObj(userId, patchArr);
 
   const dataObj = getUserData(userId);
   const updatedDataObj = jsonPatch.applyPatch(dataObj, preparedPatch).newDocument;
@@ -128,12 +140,67 @@ const updateUserData = (userId, patch) => {
   return hash;
 };
 
-const validatePatchObj = patch => {
-  // make sure that none of the reserved top-level properties are changed/overwritten/deleted/moved
+const ensurePatchIsArray = patch => {
+  return Array.isArray(patch) ? patch : [patch];
+};
 
-  // TODO implement
-  return patch;
-}
+const validatePatchObj = patchArr => {
+  const mandatoryProps = [
+    PATCH_KEY_OP,
+    PATCH_KEY_PATH,
+    PATCH_KEY_VALUE,
+  ];
+
+  // make sure that none of the reserved top-level properties are changed/overwritten/deleted/moved
+  const invalidPaths = [
+    '/' + userModel.constants.KEY_CONTACTS,
+    '/' + userModel.constants.KEY_CONTACTS + '/',
+    '/' + userModel.constants.KEY_SETTINGS,
+    '/' + userModel.constants.KEY_SETTINGS + '/',
+    '/' + userModel.constants.KEY_SELF,
+    '/' + userModel.constants.KEY_SELF + '/',
+    '/' + userModel.constants.KEY_RELATIONSHIPS,
+    '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
+  ];
+
+  for (let patchOp of patchArr) {
+    if (typeof patchOp !== 'object') {
+      throw new Error('Patch must be of type object');
+    }
+
+    for (let mandatoryProp of mandatoryProps) {
+      if (!patchOp.hasOwnProperty(mandatoryProp)) {
+        throw new Error('Missing mandatory patch property ' + mandatoryProp);
+      }
+    }
+
+    const patchPath = patchOp[PATCH_KEY_PATH];
+
+    // technically it's legal to start the path without a slash, but we disallow it
+    // for application-specific data management purposes
+    if (!patchPath.startsWith('/')) {
+      throw new Error('Paths must start with /');
+    }
+
+    if (!checkValidPathStart(patchPath)) {
+      throw new Error('Illegal path start: ' + patchPath);
+    }
+
+    if (invalidPaths.includes(patchPath)) {
+      throw new Error('Illegal patch path: ' + patchPath);
+    }
+  }
+};
+
+const checkValidPathStart = patchPath => {
+  for (let validPathStart of validPathStarts) {
+    if (patchPath.startsWith(validPathStart)) {
+      return true;
+    }
+  }
+
+  return false;
+};
 
 const preparePatchObj = (userId, patch) => {
   // a "path" property containing something like this will be substituted to the actual array index
