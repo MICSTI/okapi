@@ -16,7 +16,7 @@ const createUser = (userObj) => {
   }
 
   // assign a unique user ID
-  const userId = cryptoUtil.createRandomString();
+  const userId = cryptoUtil.createRandomString(userModel.constants.CONFIG_USER_ID_LENGTH);
   user[userModel.constants.KEY_ID] = userId;
 
   const dataObj = userModel.initDataObject(user);

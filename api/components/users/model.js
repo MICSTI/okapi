@@ -1,4 +1,6 @@
 const constants = {
+  CONFIG_USER_ID_LENGTH: 24,
+
   DATA: 'data',
   META: 'meta',
   HASH: 'hash',
