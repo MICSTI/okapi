@@ -24,10 +24,22 @@ const encodeBase64 = str => {
 
   const parsedWord = CryptoJS.enc.Utf8.parse(str);
   return CryptoJS.enc.Base64.stringify(parsedWord);
-}
+};
+
+const decodeBase64 = encodedStr => {
+  const encodedWord = CryptoJS.enc.Base64.parse(encodedStr);
+  const decodedStr = CryptoJS.enc.Utf8.stringify(encodedWord);
+
+  try {
+    return JSON.parse(decodedStr);
+  } catch {
+    return decodedStr;
+  }
+};
 
 module.exports = {
   createRandomString,
+  decodeBase64,
   encodeBase64,
   getObjectHashSha256,
 };
