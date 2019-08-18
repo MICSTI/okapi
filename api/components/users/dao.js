@@ -127,10 +127,10 @@ const updateUserData = (userId, patch) => {
   validatePatchObj(patchArr);
 
   // prepare the patch object => replace object IDs with actual indizes
-  const preparedPatch = preparePatchObj(userId, patchArr);
+  preparePatchArr(userId, patchArr);
 
   const dataObj = getUserData(userId);
-  const updatedDataObj = jsonPatch.applyPatch(dataObj, preparedPatch).newDocument;
+  const updatedDataObj = jsonPatch.applyPatch(dataObj, patchArr).newDocument;
 
   setUserData(userId, updatedDataObj);
 
@@ -202,11 +202,38 @@ const checkValidPathStart = patchPath => {
   return false;
 };
 
+const preparePatchArr = (userId, patchArr) => {
+  for (let patchObj of patchArr) {
+    preparePatchObj(userId, patchObj);
+  }
+}
+
 const preparePatchObj = (userId, patch) => {
   // a "path" property containing something like this will be substituted to the actual array index
   // { ..., path: "/contacts/:OBJECT_ID/firstName", ... } -> { ..., path: "/contacts/7/firstName", ... }
+  let path = patch[PATCH_KEY_PATH];
 
-  // TODO implement
+  while (path.includes(':')) {
+    // cut the object ID from the string
+    let startPos = path.indexOf(':');
+    let endPos = path.indexOf('/', startPos);
+
+    if (endPos < startPos) {
+      throw new Error('Malformed path: ' + path);
+    }
+
+    // we need to add (and remove) one to the start position because of the ":"
+    const objectId = path.substr(startPos + 1, (endPos - startPos - 1));
+
+    // TODO implement lookup in data store
+    const arrIdx = 0;
+
+    // replace the object ID with the array index
+    path = path.replace(':' + objectId, arrIdx);
+  }
+
+  patch[PATCH_KEY_PATH] = path;
+
   return patch;
 };
 
