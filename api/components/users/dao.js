@@ -38,10 +38,6 @@ const createUser = (userObj) => {
   const password = user.password;
   const hashedPassword = cryptoUtil.getPasswordHash(salt, password);
 
-  console.log('salt', salt);
-  console.log('password', password);
-  console.log('hashed', hashedPassword);
-
   // TODO refactor this? to reuse with change password
   metaObj[userModel.constants.KEY_SALT] = salt;
   metaObj[userModel.constants.KEY_PASSWORD] = hashedPassword;
@@ -70,11 +66,6 @@ const validateCredentials = (username, password) => {
       const salt = userMeta[userModel.constants.KEY_SALT];
       const hashedPassword = cryptoUtil.getPasswordHash(salt, password);
       const hashedPasswordToCompare = userMeta[userModel.constants.KEY_PASSWORD];
-
-      console.log('salt', salt);
-      console.log('password', password);
-      console.log('hashed password', hashedPassword);
-      console.log('hashed to compare', hashedPasswordToCompare);
 
       if (hashedPassword === hashedPasswordToCompare) {
         return {
