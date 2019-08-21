@@ -2,6 +2,7 @@ const jsonPatch = require('fast-json-patch');
 
 const userModel = require('./model');
 const store = require('../../../db');
+const commonUtil = require('../../../util/common');
 const cryptoUtil = require('../../../util/crypto');
 
 const PATCH_KEY_OP = 'op';
@@ -238,14 +239,17 @@ const preparePatchObj = (userId, patch) => {
       throw new Error('Malformed path: ' + path);
     }
 
+    const userData = getUserData(userId);
+
     // we need to add (and remove) one to the start position because of the ":"
     const objectId = path.substr(startPos + 1, (endPos - startPos - 1));
 
-    // TODO implement lookup in data store
-    const arrIdx = 0;
+    const pathUntilObjectId = path.substr(0, startPos);
+    const searchArray = commonUtil.lookupObjectPathValue(userData, pathUntilObjectId);
+    const idIdx = commonUtil.lookupArrayElementIdx(searchArray, 'id', objectId);
 
     // replace the object ID with the array index
-    path = path.replace(':' + objectId, arrIdx);
+    path = path.replace(':' + objectId, idIdx);
   }
 
   patch[PATCH_KEY_PATH] = path;
