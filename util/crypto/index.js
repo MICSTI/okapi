@@ -17,6 +17,10 @@ const getObjectHashSha256 = obj => {
   return CryptoJS.SHA256(JSON.stringify(obj)).toString(CryptoJS.enc.Base64);
 };
 
+const getPasswordHash = (salt, password) => {
+  return CryptoJS.SHA512(salt + password).toString(CryptoJS.enc.Base64);
+};
+
 const encodeBase64 = str => {
   if (typeof str === 'object') {
     str = JSON.stringify(str);
@@ -42,4 +46,5 @@ module.exports = {
   decodeBase64,
   encodeBase64,
   getObjectHashSha256,
+  getPasswordHash,
 };

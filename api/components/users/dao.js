@@ -33,6 +33,19 @@ const createUser = (userObj) => {
   const metaObj = userModel.initMetaObject(user);
   const dataHash = calculateDataHash(dataObj);
 
+  // use crypto util to set salt and hashed password
+  const salt = cryptoUtil.createRandomString(userModel.constants.CONFIG_SALT_LENGTH);
+  const password = user.password;
+  const hashedPassword = cryptoUtil.getPasswordHash(salt, password);
+
+  console.log('salt', salt);
+  console.log('password', password);
+  console.log('hashed', hashedPassword);
+
+  // TODO refactor this? to reuse with change password
+  metaObj[userModel.constants.KEY_SALT] = salt;
+  metaObj[userModel.constants.KEY_PASSWORD] = hashedPassword;
+
   setUserData(userId, dataObj);
   setUserMeta(userId, metaObj);
   setUserContentHash(userId, dataHash);
@@ -48,14 +61,29 @@ const validateCredentials = (username, password) => {
   for (let key of storeKeys) {
     const userObj = store.get(key);
 
-    if (userObj[userModel.constants.KEY_EMAIL] !== username) {
-      return;
-    }
+    if (userObj[userModel.constants.KEY_EMAIL] === username &&
+          userObj[userModel.constants.KEY_ACTIVE] === true) {
 
-    // TODO perform password check with crypto util
-    return {
-      id: userObj[userModel.constants.KEY_ID],
-    };
+      const userId = userObj[userModel.constants.KEY_ID];
+
+      const userMeta = getUserMeta(userId);
+      const salt = userMeta[userModel.constants.KEY_SALT];
+      const hashedPassword = cryptoUtil.getPasswordHash(salt, password);
+      const hashedPasswordToCompare = userMeta[userModel.constants.KEY_PASSWORD];
+
+      console.log('salt', salt);
+      console.log('password', password);
+      console.log('hashed password', hashedPassword);
+      console.log('hashed to compare', hashedPasswordToCompare);
+
+      if (hashedPassword === hashedPasswordToCompare) {
+        return {
+          id: userId,
+        };
+      }
+
+      return null;
+    }
   }
   
   return null;
@@ -66,6 +94,7 @@ const filterJsonInputCreateUser = (userJson) => {
     userModel.constants.KEY_FIRST_NAME,
     userModel.constants.KEY_LAST_NAME,
     userModel.constants.KEY_EMAIL,
+    userModel.constants.KEY_PASSWORD,
   ];
 
   const filteredObj = {};
