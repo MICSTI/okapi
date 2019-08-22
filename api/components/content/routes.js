@@ -1,5 +1,7 @@
 const router = require('express').Router();
+
 const accessControl = require('../../middlewares/accessControl');
+const contentDao = require('./dao');
 const userDao = require('../users/dao');
 const errorHandler = require('../../controllers/errorHandler');
 
@@ -34,10 +36,21 @@ router.post('/update', accessControl.protect(), (req, res, next) => {
     return next(errorHandler.createError(400, "Missing mandatory body parameter 'patch'"));
   }
 
-  try {
-    const newHash = userDao.updateUserData(req.user.id, patch);
+  const userId = req.user.id;
 
+  try {
+    const failedOperations = contentDao.updateData(userId, patch);
+
+    if (failedOperations.length > 0) {
+      return res.status(400).json({
+        success: false,
+        failedOperations,
+      })
+    }
+
+    const newHash = userDao.getUserContentHash(userId);
     return res.status(200).json({
+      success: true,
       newHash,
     });
   } catch (err) {

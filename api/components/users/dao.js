@@ -1,19 +1,6 @@
-const jsonPatch = require('fast-json-patch');
-
 const userModel = require('./model');
 const store = require('../../../db');
-const commonUtil = require('../../../util/common');
 const cryptoUtil = require('../../../util/crypto');
-
-const PATCH_KEY_OP = 'op';
-const PATCH_KEY_PATH = 'path';
-const PATCH_KEY_VALUE = 'value';
-
-const validPathStarts = [
-  '/' + userModel.constants.KEY_CONTACTS + '/',
-  '/' + userModel.constants.KEY_SETTINGS + '/',
-  '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
-];
 
 const createUser = (userObj) => {
   // filter the incoming JSON object
@@ -137,130 +124,13 @@ const getUserContentHash = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
 };
 
-const updateUserData = (userId, patch) => {
-  const patchArr = ensurePatchIsArray(patch);
-
-  // validate the patch object => make sure that no reserved properties are changed
-  validatePatchObj(patchArr);
-
-  // prepare the patch object => replace object IDs with actual indizes
-  preparePatchArr(userId, patchArr);
-
-  const dataObj = getUserData(userId);
-  const updatedDataObj = jsonPatch.applyPatch(dataObj, patchArr).newDocument;
-
-  setUserData(userId, updatedDataObj);
-
-  const hash = calculateDataHash(updatedDataObj);
-  setUserContentHash(userId, hash);
-  
-  return hash;
-};
-
-const ensurePatchIsArray = patch => {
-  return Array.isArray(patch) ? patch : [patch];
-};
-
-const validatePatchObj = patchArr => {
-  const mandatoryProps = [
-    PATCH_KEY_OP,
-    PATCH_KEY_PATH,
-    PATCH_KEY_VALUE,
-  ];
-
-  // make sure that none of the reserved top-level properties are changed/overwritten/deleted/moved
-  const invalidPaths = [
-    '/' + userModel.constants.KEY_CONTACTS,
-    '/' + userModel.constants.KEY_CONTACTS + '/',
-    '/' + userModel.constants.KEY_SETTINGS,
-    '/' + userModel.constants.KEY_SETTINGS + '/',
-    '/' + userModel.constants.KEY_SELF,
-    '/' + userModel.constants.KEY_SELF + '/',
-    '/' + userModel.constants.KEY_RELATIONSHIPS,
-    '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
-  ];
-
-  for (let patchOp of patchArr) {
-    if (typeof patchOp !== 'object') {
-      throw new Error('Patch must be of type object');
-    }
-
-    for (let mandatoryProp of mandatoryProps) {
-      if (!patchOp.hasOwnProperty(mandatoryProp)) {
-        throw new Error('Missing mandatory patch property ' + mandatoryProp);
-      }
-    }
-
-    const patchPath = patchOp[PATCH_KEY_PATH];
-
-    // technically it's legal to start the path without a slash, but we disallow it
-    // for application-specific data management purposes
-    if (!patchPath.startsWith('/')) {
-      throw new Error('Paths must start with /');
-    }
-
-    if (!checkValidPathStart(patchPath)) {
-      throw new Error('Illegal path start: ' + patchPath);
-    }
-
-    if (invalidPaths.includes(patchPath)) {
-      throw new Error('Illegal patch path: ' + patchPath);
-    }
-  }
-};
-
-const checkValidPathStart = patchPath => {
-  for (let validPathStart of validPathStarts) {
-    if (patchPath.startsWith(validPathStart)) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const preparePatchArr = (userId, patchArr) => {
-  for (let patchObj of patchArr) {
-    preparePatchObj(userId, patchObj);
-  }
-}
-
-const preparePatchObj = (userId, patch) => {
-  // a "path" property containing something like this will be substituted to the actual array index
-  // { ..., path: "/contacts/:OBJECT_ID/firstName", ... } -> { ..., path: "/contacts/7/firstName", ... }
-  let path = patch[PATCH_KEY_PATH];
-
-  while (path.includes(':')) {
-    // cut the object ID from the string
-    let startPos = path.indexOf(':');
-    let endPos = path.indexOf('/', startPos);
-
-    if (endPos < startPos) {
-      throw new Error('Malformed path: ' + path);
-    }
-
-    const userData = getUserData(userId);
-
-    // we need to add (and remove) one to the start position because of the ":"
-    const objectId = path.substr(startPos + 1, (endPos - startPos - 1));
-
-    const pathUntilObjectId = path.substr(0, startPos);
-    const searchArray = commonUtil.lookupObjectPathValue(userData, pathUntilObjectId);
-    const idIdx = commonUtil.lookupArrayElementIdx(searchArray, 'id', objectId);
-
-    // replace the object ID with the array index
-    path = path.replace(':' + objectId, idIdx);
-  }
-
-  patch[PATCH_KEY_PATH] = path;
-
-  return patch;
-};
-
 module.exports = {
+  calculateDataHash,
   createUser,
   getUserContentHash,
+  getUserData,
   getUserDataBase64,
-  updateUserData,
+  setUserContentHash,
+  setUserData,
   validateCredentials,
 };
