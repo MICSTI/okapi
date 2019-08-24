@@ -38,11 +38,10 @@ const getCompositeKey = (type, userId) => {
 
 const initDataObject = (user) => {
   return {
-    [constants.KEY_SELF]: {
-      [constants.KEY_ID]: user[constants.KEY_ID],
-    },
-    [constants.KEY_SETTINGS]: {},
-    [constants.KEY_CONTACTS]: [],
+    [constants.KEY_CONTACTS]: [{
+      [constants.KEY_ID]: constants.KEY_SELF,
+      [constants.KEY_SETTINGS]: {},
+    }],
     [constants.KEY_RELATIONSHIPS]: [],
   };
 };

@@ -19,7 +19,17 @@ const mandatoryPatchProps = [
 
 const validPathStarts = [
   '/' + userModel.constants.KEY_CONTACTS + '/',
-  '/' + userModel.constants.KEY_SETTINGS + '/',
+  '/' + userModel.constants.KEY_CONTACTS + '/:' + userModel.constants.KEY_SELF + 
+    '/' + userModel.constants.KEY_SETTINGS + '/',
+  '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
+];
+
+const invalidPaths = [
+  '/' + userModel.constants.KEY_CONTACTS,
+  '/' + userModel.constants.KEY_CONTACTS + '/',
+  '/' + userModel.constants.KEY_CONTACTS +'/:' + userModel.constants.KEY_SELF,
+  '/' + userModel.constants.KEY_CONTACTS +'/:' + userModel.constants.KEY_SELF + '/',
+  '/' + userModel.constants.KEY_RELATIONSHIPS,
   '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
 ];
 
@@ -103,17 +113,6 @@ const ensurePatchIsArray = patch => {
 
 const validatePatchObj = patchArr => {
   // make sure that none of the reserved top-level properties are changed/overwritten/deleted/moved
-  const invalidPaths = [
-    '/' + userModel.constants.KEY_CONTACTS,
-    '/' + userModel.constants.KEY_CONTACTS + '/',
-    '/' + userModel.constants.KEY_SETTINGS,
-    '/' + userModel.constants.KEY_SETTINGS + '/',
-    '/' + userModel.constants.KEY_SELF,
-    '/' + userModel.constants.KEY_SELF + '/',
-    '/' + userModel.constants.KEY_RELATIONSHIPS,
-    '/' + userModel.constants.KEY_RELATIONSHIPS + '/',
-  ];
-
   for (const patchOp of patchArr) {
     if (typeof patchOp !== 'object') {
       throw new Error('Patch must be of type object');
