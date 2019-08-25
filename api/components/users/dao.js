@@ -69,12 +69,7 @@ const validateCredentials = (username, password) => {
 };
 
 const filterJsonInputCreateUser = (userJson) => {
-  const allowedProperties = [
-    userModel.constants.KEY_FIRST_NAME,
-    userModel.constants.KEY_LAST_NAME,
-    userModel.constants.KEY_EMAIL,
-    userModel.constants.KEY_PASSWORD,
-  ];
+  const allowedProperties = userModel.allowedCreateProps;
 
   const filteredObj = {};
 
@@ -87,9 +82,12 @@ const filterJsonInputCreateUser = (userJson) => {
   return filteredObj;
 };
 
-const validateCreateUserObj = (userObj) => {
-  // TODO implement check if all necessary properties are there
-  return [];
+const validateCreateUserObj = userObj => {
+  for (const prop of userModel.mandatoryCreateProps) {
+    if (typeof userObj[prop] === 'undefined') {
+      throw new Error(`Missing mandatory property ${prop}`);
+    }
+  }
 };
 
 const calculateDataHash = dataObj => {

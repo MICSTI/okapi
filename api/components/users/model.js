@@ -83,6 +83,19 @@ const constants = {
   KEY_SETTINGS: 'settings',
 };
 
+const allowedCreateProps = [
+  constants.KEY_EMAIL,
+  constants.KEY_FIRST_NAME,
+  constants.KEY_LAST_NAME,
+  constants.KEY_PASSWORD,
+];
+
+const mandatoryCreateProps = [
+  constants.KEY_EMAIL,
+  constants.KEY_FIRST_NAME,
+  constants.KEY_PASSWORD,
+];
+
 const getCompositeKey = (type, userId) => {
   switch (type) {
     case constants.DATA:
@@ -124,8 +137,10 @@ const initMetaObject = (user) => {
 };
 
 module.exports = {
+  allowedCreateProps,
   constants,
   initDataObject,
   initMetaObject,
   getCompositeKey,
+  mandatoryCreateProps,
 };
