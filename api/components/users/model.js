@@ -1,3 +1,63 @@
+/*
+  For one user, there are always three objects store in the database:
+
+  user:USER_ID:meta
+  user:USER_ID:data
+  user:USER_ID:hash
+  
+  Meta object:
+  {
+    "active": boolean,                // determines whether user account is active or not
+    "id": String,                     // user ID
+    "firstName": String,              // first name
+    "lastName": String,               // last name
+    "email": String,                  // email address
+    "salt": String,                   // password salt
+    "password": String,               // SHA-512 value of salt and actual password
+    "passwordResetToken": Token,      // token for resetting password
+    "accountActivationToken": Token,  // token for activating account
+  }
+
+  Token object:
+  {
+    "value": String,                  // value of token
+    "expires": Date,                  // expiry date of token
+  }
+
+  Data object:
+  {
+    "contacts": [
+      {                               // the first contact element is the special "self" element
+        "id": "self",                 // is used for storing user-specific settings
+        "settings": {
+          "key": "value",
+          "keyx": "valuex",
+        }
+      },
+      {
+        "id": ObjectId,
+        // arbitrary key-value settings (can also be nested)
+      }
+    ],
+    "relationships": [
+      {
+        "id": ObjectId,
+        "participants": [
+          CONTACT_ID,
+          CONTACT_ID
+        ],
+        "type": ???,
+        "anniversaries": [
+          {
+            "id": ObjectId,
+            "date": DATE,
+          }
+        ]
+      }
+    ]
+  }
+*/
+
 const constants = {
   CONFIG_USER_ID_LENGTH: 24,
   CONFIG_SALT_LENGTH: 40,
