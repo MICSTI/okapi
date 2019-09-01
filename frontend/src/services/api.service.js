@@ -10,10 +10,12 @@ const ApiService = {
     Vue.axios.defaults.baseURL = API_URL;
   },
 
-  setHeader() {
+  async setHeader() {
+    const token = await TokenService.getToken();
+
     Vue.axios.defaults.headers.common[
       "Authorization"
-    ] = `Bearer ${TokenService.getToken()}`;
+    ] = `Bearer ${token}`;
   },
 
   async get(resource) {
