@@ -3,7 +3,7 @@ const userDao = require('./dao');
 const errorHandler = require('../../controllers/errorHandler');
 const HTTP_STATUSES = require('../../constants/http');
 
-router.post('/create', (req, res, next) => {
+router.post('/', (req, res, next) => {
   const userObj = req.body.user;
 
   if (!userObj) {
