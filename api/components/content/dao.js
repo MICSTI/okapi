@@ -70,7 +70,7 @@ const preparePatchOperation = (userId, patch) => {
 };
 
 const updateData = (userId, patch) => {
-  const patchArr = ensurePatchIsArray(patch);
+  const patchArr = commonUtil.arrayify(patch);
 
   // validate the patch object => make sure that no reserved properties are changed
   validatePatchObj(patchArr);
@@ -105,10 +105,6 @@ const updateData = (userId, patch) => {
   userDao.setUserContentHash(userId, hash);
   
   return failedOps;
-};
-
-const ensurePatchIsArray = patch => {
-  return Array.isArray(patch) ? patch : [patch];
 };
 
 const validatePatchObj = patchArr => {

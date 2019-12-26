@@ -34,7 +34,12 @@ const lookupArrayElementIdx = (arr, prop, value) => {
   return -1;
 };
 
+const arrayify = input => {
+  return Array.isArray(input) ? input : [input];
+}
+
 module.exports = {
+  arrayify,
   lookupArrayElementIdx,
   lookupObjectPathValue,
 }
