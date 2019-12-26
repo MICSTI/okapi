@@ -13,7 +13,7 @@
     </div>
 
     <div class="container">
-      <div class="header has-text-weight-bold is-uppercase">Education</div>
+      <div class="header has-text-weight-bold is-uppercase">| Education</div>
       <div class="content">
         <ul>
           <li>
