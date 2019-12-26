@@ -37,6 +37,12 @@ const createUser = (userObj) => {
   return dataObj;
 };
 
+const deleteUser = userId => {
+  unsetUserData(userId);
+  unsetUserMeta(userId);
+  unsetUserContentHash(userId);
+};
+
 const validateCredentials = (username, password) => {
   // get all 'meta' user keys from the store
   // TODO change this to a more performant approach (using wildcards in Redis?)
@@ -83,11 +89,15 @@ const filterJsonInputCreateUser = (userJson) => {
 };
 
 const validateCreateUserObj = userObj => {
+  const missingProps = [];
+
   for (const prop of userModel.mandatoryCreateProps) {
     if (typeof userObj[prop] === 'undefined') {
-      throw new Error(`Missing mandatory property ${prop}`);
+      missingProps.push(prop);
     }
   }
+
+  return missingProps;
 };
 
 const calculateDataHash = dataObj => {
@@ -102,12 +112,20 @@ const getUserMeta = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.META, userId));
 };
 
+const unsetUserMeta = userId => {
+  store.unset(userModel.getCompositeKey(userModel.constants.META, userId));
+};
+
 const setUserData = (userId, dataObj) => {
   store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
 };
 
 const getUserData = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
+};
+
+const unsetUserData = userId => {
+  store.unset(userModel.getCompositeKey(userModel.constants.DATA, userId));
 };
 
 const getUserDataBase64 = userId => {
@@ -122,9 +140,14 @@ const getUserContentHash = userId => {
   return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
 };
 
+const unsetUserContentHash = userId => {
+  return store.unset(userModel.getCompositeKey(userModel.constants.HASH, userId));
+}
+
 module.exports = {
   calculateDataHash,
   createUser,
+  deleteUser,
   getUserContentHash,
   getUserData,
   getUserDataBase64,
