@@ -2,7 +2,7 @@ const userModel = require('./model');
 const store = require('../../../db');
 const cryptoUtil = require('../../../util/crypto');
 
-const createUser = (userObj) => {
+const createUser = async (userObj) => {
   // filter the incoming JSON object
   const user = filterJsonInputCreateUser(userObj);
 
@@ -30,33 +30,34 @@ const createUser = (userObj) => {
   metaObj[userModel.constants.KEY_SALT] = salt;
   metaObj[userModel.constants.KEY_PASSWORD] = hashedPassword;
 
-  setUserData(userId, dataObj);
-  setUserMeta(userId, metaObj);
-  setUserContentHash(userId, dataHash);
+  await setUserData(userId, dataObj);
+  await setUserMeta(userId, metaObj);
+  await setUserContentHash(userId, dataHash);
 
-  return dataObj;
+  return getUserDataAndHash(userId);
 };
 
-const deleteUser = userId => {
-  unsetUserData(userId);
-  unsetUserMeta(userId);
-  unsetUserContentHash(userId);
+const deleteUser = async (userId) => {
+  await unsetUserData(userId);
+  await unsetUserMeta(userId);
+  await unsetUserContentHash(userId);
 };
 
-const validateCredentials = (username, password) => {
+const validateCredentials = async (username, password) => {
   // get all 'meta' user keys from the store
   // TODO change this to a more performant approach (using wildcards in Redis?)
-  const storeKeys = store.keys().filter(key => key.endsWith(userModel.constants.META));
+  const allStoreKeys = await store.keys();
+  const storeKeys = allStoreKeys.filter(key => key.endsWith(userModel.constants.META));
 
   for (let key of storeKeys) {
-    const userObj = store.get(key);
+    const userObj = await store.get(key);
 
     if (userObj[userModel.constants.KEY_EMAIL] === username &&
           userObj[userModel.constants.KEY_ACTIVE] === true) {
 
       const userId = userObj[userModel.constants.KEY_ID];
 
-      const userMeta = getUserMeta(userId);
+      const userMeta = await getUserMeta(userId);
       const salt = userMeta[userModel.constants.KEY_SALT];
       const hashedPassword = cryptoUtil.getPasswordHash(salt, password);
       const hashedPasswordToCompare = userMeta[userModel.constants.KEY_PASSWORD];
@@ -104,45 +105,56 @@ const calculateDataHash = dataObj => {
   return cryptoUtil.getObjectHashSha256(dataObj);
 };
 
-const setUserMeta = (userId, metaObj) => {
-  store.set(userModel.getCompositeKey(userModel.constants.META, userId), metaObj);
+const setUserMeta = async (userId, metaObj) => {
+  return store.set(userModel.getCompositeKey(userModel.constants.META, userId), metaObj);
 };
 
-const getUserMeta = userId => {
+const getUserMeta = async (userId) => {
   return store.get(userModel.getCompositeKey(userModel.constants.META, userId));
 };
 
-const unsetUserMeta = userId => {
-  store.unset(userModel.getCompositeKey(userModel.constants.META, userId));
+const unsetUserMeta = async (userId) => {
+  return store.unset(userModel.getCompositeKey(userModel.constants.META, userId));
 };
 
-const setUserData = (userId, dataObj) => {
-  store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
+const setUserData = async (userId, dataObj) => {
+  return store.set(userModel.getCompositeKey(userModel.constants.DATA, userId), dataObj);
 };
 
-const getUserData = userId => {
+const getUserData = async (userId) => {
   return store.get(userModel.getCompositeKey(userModel.constants.DATA, userId));
 };
 
-const unsetUserData = userId => {
-  store.unset(userModel.getCompositeKey(userModel.constants.DATA, userId));
+const unsetUserData = async (userId) => {
+  return store.unset(userModel.getCompositeKey(userModel.constants.DATA, userId));
 };
 
-const getUserDataBase64 = userId => {
-  return cryptoUtil.encodeBase64(getUserData(userId));
+const getUserDataBase64 = async (userId) => {
+  const userData = await getUserData(userId);
+  return cryptoUtil.encodeBase64(userData);
 };
 
-const setUserContentHash = (userId, hash) => {
-  store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), hash);
+const setUserContentHash = async (userId, hash) => {
+  return store.set(userModel.getCompositeKey(userModel.constants.HASH, userId), hash);
 };
 
-const getUserContentHash = userId => {
+const getUserContentHash = async (userId) => {
   return store.get(userModel.getCompositeKey(userModel.constants.HASH, userId));
 };
 
-const unsetUserContentHash = userId => {
+const unsetUserContentHash = async (userId) => {
   return store.unset(userModel.getCompositeKey(userModel.constants.HASH, userId));
 }
+
+const getUserDataAndHash = async (userId) => {
+  const data = await getUserDataBase64(userId);
+  const hash = await getUserContentHash(userId);
+
+  return {
+    data,
+    hash,
+  };
+};
 
 module.exports = {
   calculateDataHash,
@@ -150,6 +162,7 @@ module.exports = {
   deleteUser,
   getUserContentHash,
   getUserData,
+  getUserDataAndHash,
   getUserDataBase64,
   setUserContentHash,
   setUserData,

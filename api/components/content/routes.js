@@ -6,16 +6,10 @@ const userDao = require('../users/dao');
 const errorHandler = require('../../controllers/errorHandler');
 const HTTP_STATUSES = require('../../constants/http');
 
-router.get('/data', accessControl.protect(), (req, res, next) => {
+router.get('/data', accessControl.protect(), async (req, res, next) => {
   const userId = req.user.id;
-
-  const data = userDao.getUserDataBase64(userId);
-  const hash = userDao.getUserContentHash(userId);
-
-  return res.status(HTTP_STATUSES.OK).json({
-    data,
-    hash
-  });
+  const userDataAndHash = await userDao.getUserDataAndHash(userId);
+  return res.status(HTTP_STATUSES.OK).json(userDataAndHash);
 });
 
 router.get('/hash', accessControl.protect(), (req, res, next) => {

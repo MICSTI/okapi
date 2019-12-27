@@ -25,7 +25,7 @@ const log = (level, message) => {
   }
 };
 
-const load = () => {
+const load = async () => {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, (err, data) => {
       if (err) {
@@ -41,7 +41,7 @@ const load = () => {
   });
 };
 
-const persist = () => {
+const persist = async () => {
   return new Promise((resolve, reject) => {
     if (!initialized) {
       return reject(ERROR_MSG_NOT_INITIALIZED);
@@ -57,7 +57,7 @@ const persist = () => {
   });
 };
 
-const init = (path) => {
+const init = async (path) => {
   return new Promise((resolve, reject) => {
     if (initialized) {
       return reject(ERROR_MSG_ALREADY_INITIALIZED);
@@ -82,15 +82,15 @@ const init = (path) => {
   });
 };
 
-const set = (key, value) => {
+const set = async (key, value) => {
   if (!initialized) {
     throw new Error(ERROR_MSG_NOT_INITIALIZED);
   }
 
-  store[key] = value;
+  return store[key] = value;
 };
 
-const get = key => {
+const get = async (key) => {
   if (!initialized) {
     throw new Error(ERROR_MSG_NOT_INITIALIZED);
   }
@@ -98,7 +98,7 @@ const get = key => {
   return store[key];
 };
 
-const keys = () => {
+const keys = async () => {
   if (!initialized) {
     throw new Error(ERROR_MSG_NOT_INITIALIZED);
   }
@@ -106,12 +106,12 @@ const keys = () => {
   return Object.keys(store);
 };
 
-const unset = key => {
+const unset = async key => {
   if (!initialized) {
     throw new Error(ERROR_MSG_NOT_INITIALIZED);
   }
 
-  delete store[key];
+  return delete store[key];
 };
 
 const publicApi = {

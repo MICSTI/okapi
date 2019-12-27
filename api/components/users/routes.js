@@ -5,7 +5,7 @@ const userDao = require('./dao');
 const errorHandler = require('../../controllers/errorHandler');
 const HTTP_STATUSES = require('../../constants/http');
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   const userObj = req.body.user;
 
   if (!userObj) {
@@ -13,7 +13,7 @@ router.post('/', (req, res, next) => {
   }
 
   try {
-    const user = userDao.createUser(userObj);
+    const user = await userDao.createUser(userObj);
 
     return res.status(HTTP_STATUSES.CREATED).json(user);
   } catch (ex) {
@@ -22,11 +22,11 @@ router.post('/', (req, res, next) => {
   }
 });
 
-router.delete('/', accessControl.protect(), (req, res, next) => {
+router.delete('/', accessControl.protect(), async (req, res, next) => {
   const userId = req.user.id;
 
   try {
-    userDao.deleteUser(userId);
+    await userDao.deleteUser(userId);
 
     return res.status(HTTP_STATUSES.NO_CONTENT).json();
   } catch (ex) {
