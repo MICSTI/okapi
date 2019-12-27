@@ -8,7 +8,6 @@
   Meta object:
   {
     "active": boolean,                // determines whether user account is active or not
-    "id": String,                     // user ID
     "firstName": String,              // first name
     "lastName": String,               // last name
     "email": String,                  // email address
@@ -29,11 +28,13 @@
     "contacts": [
       {                               // the first contact element is the special "self" element
         "id": "self",                 // is used for storing user-specific settings
-        "settings": {
-          "key": "value",
-          "keyx": "valuex",
-        }
-      },
+        "settings": [{
+          "id": ObjectId,
+          "key": "value"
+        }, {
+          "id": ObjectId,
+          "key2": "value"
+        }],
       {
         "id": ObjectId,
         // arbitrary key-value settings (can also be nested)
@@ -113,7 +114,9 @@ const initDataObject = (user) => {
   return {
     [constants.KEY_CONTACTS]: [{
       [constants.KEY_ID]: constants.KEY_SELF,
-      [constants.KEY_SETTINGS]: {},
+      [constants.KEY_LAST_NAME]: user.KEY_LAST_NAME,
+      [constants.KEY_FIRST_NAME]: user.KEY_FIRST_NAME,
+      [constants.KEY_SETTINGS]: [],
     }],
     [constants.KEY_RELATIONSHIPS]: [],
   };
@@ -124,7 +127,6 @@ const initMetaObject = (user) => {
 
   // TODO user should not be active by default
   metaObj[constants.KEY_ACTIVE] = true;
-  metaObj[constants.KEY_ID] = user[constants.KEY_ID];
   metaObj[constants.KEY_EMAIL] = user[constants.KEY_EMAIL];
   metaObj[constants.KEY_FIRST_NAME] = user[constants.KEY_FIRST_NAME];
   metaObj[constants.KEY_LAST_NAME] = user[constants.KEY_LAST_NAME];
