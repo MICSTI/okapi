@@ -8,7 +8,6 @@ const createError = (status, message) => {
 const handle = (err, req, res, next) => {
   const { message } = err;
   res.status(err.status || 500).json({
-    error: true,
     message,
   });
 };
