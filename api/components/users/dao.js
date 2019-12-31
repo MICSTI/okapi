@@ -43,13 +43,33 @@ const deleteUser = async (userId) => {
   await unsetUserContentHash(userId);
 };
 
+const findUserByEmail = async (email) => {
+  const allStoreKeys = await store.keys();
+  const storeKeys = allStoreKeys.filter(key => key.endsWith(userModel.constants.META));
+
+  for (const key of storeKeys) {
+    const userObj = await store.get(key);
+
+    if (userObj[userModel.constants.KEY_EMAIL] === email) {
+      return userObj;
+    }
+  }
+
+  return null;
+}
+
+const emailExists = async (email) => {
+  const user = await findUserByEmail(email);
+  return user !== null;
+};
+
 const validateCredentials = async (username, password) => {
   // get all 'meta' user keys from the store
   // TODO change this to a more performant approach (using wildcards in Redis?)
   const allStoreKeys = await store.keys();
   const storeKeys = allStoreKeys.filter(key => key.endsWith(userModel.constants.META));
 
-  for (let key of storeKeys) {
+  for (const key of storeKeys) {
     const userObj = await store.get(key);
 
     if (userObj[userModel.constants.KEY_EMAIL] === username &&
@@ -160,6 +180,7 @@ module.exports = {
   calculateDataHash,
   createUser,
   deleteUser,
+  emailExists,
   getUserContentHash,
   getUserData,
   getUserDataAndHash,
